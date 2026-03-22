@@ -36,6 +36,10 @@ def get_project(current_user: User = Depends(get_current_user), db: Session = De
 
 @router.post("/prompt")
 async def process_prompt(req: PromptRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    trimmed_prompt = req.prompt.strip()
+    if not trimmed_prompt or len(trimmed_prompt) > 400:
+        raise HTTPException(status_code=400, detail="Prompt must be 1-400 characters after trimming")
+
     project = get_or_create_project(db, current_user)
     
     if project.prompt_count >= PROMPT_LIMIT:
@@ -53,7 +57,7 @@ async def process_prompt(req: PromptRequest, current_user: User = Depends(get_cu
     
     # 2. Call Kimi AI
     try:
-        response_json = await call_kimi_api(req.prompt, project.game_file_content, summaries)
+        response_json = await call_kimi_api(trimmed_prompt, project.game_file_content, summaries)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")
         

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 # Auth Schemas
 class UserCreate(BaseModel):
@@ -22,4 +22,4 @@ class UserResponse(BaseModel):
 
 # IDE Schemas
 class PromptRequest(BaseModel):
-    prompt: str
+    prompt: str = Field(..., max_length=400)

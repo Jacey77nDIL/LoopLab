@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/lib/api";
 import Link from "next/link";
@@ -11,6 +11,10 @@ export default function Login() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        router.prefetch("/ide");
+    }, [router]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -27,38 +31,49 @@ export default function Login() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-950 px-4">
-            <div className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-xl shadow-2xl p-8">
+        <div className="flex items-center justify-center min-h-screen px-4 bg-[var(--background)]">
+            <div className="w-full max-w-md bg-[var(--color-arcade-panel)] border-crt rounded-none shadow-neon-cyan p-8 relative overflow-hidden">
+                {/* Decorative retro elements */}
+                <div className="absolute top-0 left-0 w-full h-1 bg-[var(--color-arcade-cyan)] opacity-70"></div>
+
                 <div className="text-center space-y-2 mb-8">
-                    <h1 className="text-2xl font-bold tracking-tight text-white">Welcome Back</h1>
-                    <p className="text-gray-400 text-sm">Sign in to your AI Game Challenge account</p>
+                    <h1 className="text-3xl font-mono tracking-widest text-[var(--color-arcade-cyan)] shadow-neon-cyan drop-shadow-sm">
+                        SYS.LOGIN
+                    </h1>
+                    <p className="text-[var(--color-arcade-text)] font-sans text-sm uppercase tracking-widest opacity-80">
+                        Authenticate to enter workspace
+                    </p>
                 </div>
 
                 {error && (
-                    <div className="bg-red-900/50 border border-red-500/50 text-red-200 px-4 py-3 rounded-md text-sm mb-6">
-                        {error}
+                    <div className="bg-[#ffe6e6] border-l-4 border-l-[var(--color-arcade-warning)] text-[var(--color-arcade-warning)] px-4 py-3 font-mono text-sm mb-6 animate-pulse">
+                        &gt; {error}
                     </div>
                 )}
 
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-300">Email Address</label>
+                        <label className="text-xs font-mono text-[var(--color-arcade-text)] uppercase tracking-wider">
+                            Identify (Email)
+                        </label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-gray-950 border border-gray-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-                            placeholder="you@example.com"
+                            className="w-full px-4 py-3 bg-[var(--color-arcade-dark)] border-b-2 border-b-[var(--color-arcade-border)] text-[var(--color-arcade-text)] font-mono focus:outline-none focus:border-b-[var(--color-arcade-cyan)] transition-colors"
+                            placeholder="admin@arcade.net"
                             required
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-300">Password</label>
+                        <label className="text-xs font-mono text-[var(--color-arcade-text)] uppercase tracking-wider">
+                            Passphrase
+                        </label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-gray-950 border border-gray-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                            className="w-full px-4 py-3 bg-[var(--color-arcade-dark)] border-b-2 border-b-[var(--color-arcade-border)] text-[var(--color-arcade-text)] font-mono tracking-widest focus:outline-none focus:border-b-[var(--color-arcade-cyan)] transition-colors"
                             placeholder="••••••••"
                             required
                         />
@@ -66,16 +81,16 @@ export default function Login() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-transparent border-2 border-[var(--color-arcade-cyan)] text-[var(--color-arcade-cyan)] font-mono tracking-widest uppercase hover:bg-[var(--color-arcade-cyan)] hover:text-white py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 shadow-neon-cyan"
                     >
-                        {loading ? "Signing In..." : "Sign In"}
+                        {loading ? "[ AUTHENTICATING... ]" : "[ INITIATE LINK ]"}
                     </button>
                 </form>
 
-                <div className="mt-6 text-center text-sm text-gray-400">
-                    Don't have an account?{" "}
-                    <Link href="/signup" className="text-blue-500 hover:text-blue-400 font-medium">
-                        Sign up
+                <div className="mt-8 text-center text-xs font-mono text-[var(--color-arcade-text)] uppercase">
+                    New operator?{" "}
+                    <Link href="/signup" className="text-[var(--color-arcade-magenta)] hover:text-[var(--color-arcade-cyan)] transition-colors">
+                        Register Code
                     </Link>
                 </div>
             </div>
