@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://looplab-l55d.onrender.com:10000";
+const API_BASE_URL = "https://looplab-l55d.onrender.com";
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem("auth_token");
