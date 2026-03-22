@@ -24,22 +24,31 @@ export default function IDE() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        loadProject();
+        loadProject(true);
     }, []);
 
-    const loadProject = async () => {
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => setError(""), 10000);
+            return () => clearTimeout(timer);
+        }
+    }, [error]);
+
+    const loadProject = async (isInitial = false) => {
         try {
             const data = await fetchProject();
-            setProject(data);
+            setProject((prev: any) => ({ ...prev, ...data }));
 
-            // Hydrate local chat history matching this user's project
-            try {
-                const storedHistory = localStorage.getItem(`chat_history_${data.id}`);
-                if (storedHistory) {
-                    setHistory(JSON.parse(storedHistory));
+            // Hydrate local chat history matching this user's project ONLY on initial load
+            if (isInitial) {
+                try {
+                    const storedHistory = localStorage.getItem(`chat_history_${data.id}`);
+                    if (storedHistory) {
+                        setHistory(JSON.parse(storedHistory));
+                    }
+                } catch (e) {
+                    console.error("Failed to parse local history");
                 }
-            } catch (e) {
-                console.error("Failed to parse local history");
             }
         } catch (err) {
             router.push("/login");
@@ -105,7 +114,7 @@ export default function IDE() {
             />
 
             {error && (
-                <div className="bg-[#ffe6e6] border-y-2 border-[var(--color-arcade-warning)] text-[var(--color-arcade-warning)] text-sm px-6 py-2 text-center font-mono font-bold tracking-widest uppercase animate-pulse z-20 shadow-[0_0_15px_#ff0000]">
+                <div className="bg-[var(--color-arcade-warning-bg)] border-y-2 border-[var(--color-arcade-warning)] text-[var(--color-arcade-warning)] text-sm px-6 py-2 text-center font-mono font-bold tracking-widest uppercase animate-pulse z-20 transition-colors shadow-neon-magenta">
                     [SYS_ERROR] {error}
                 </div>
             )}

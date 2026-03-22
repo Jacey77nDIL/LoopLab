@@ -1,14 +1,22 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-arcade-neon: #00aa00;
-  --color-arcade-cyan: #0077aa;
-  --color-arcade-magenta: #aa00aa;
-  --color-arcade-dark: #f0f0f0;
-  --color-arcade-panel: #ffffff;
-  --color-arcade-border: #cccccc;
-  --color-arcade-warning: #ff0000;
-  --color-arcade-text: #1a1a1a;
+  --color-arcade-neon: var(--theme-neon);
+  --color-arcade-cyan: var(--theme-cyan);
+  --color-arcade-magenta: var(--theme-magenta);
+  --color-arcade-dark: var(--theme-dark);
+  --color-arcade-panel: var(--theme-panel);
+  --color-arcade-border: var(--theme-border);
+  --color-arcade-warning: var(--theme-warning);
+  --color-arcade-text: var(--theme-text);
+  --color-arcade-heading: var(--theme-heading);
+  --color-arcade-active-bg: var(--theme-active-bg);
+  --color-arcade-header: var(--theme-header);
+  --color-arcade-bubble-ai: var(--theme-bubble-ai);
+  --color-arcade-text-ai: var(--theme-text-ai);
+  --color-arcade-bubble-user: var(--theme-bubble-user);
+  --color-arcade-warning-bg: var(--theme-warning-bg);
+  --color-arcade-iframe-bg: var(--theme-iframe-bg);
 
   --font-sans: var(--font-space-grotesk), sans-serif;
   --font-mono: var(--font-vt323), monospace;
@@ -17,6 +25,51 @@
 :root {
   --background: #fdfdfd;
   --foreground: #1a1a1a;
+
+  --theme-neon: #00aa00;
+  --theme-cyan: #0077aa;
+  --theme-magenta: #aa00aa;
+  --theme-dark: #f0f0f0;
+  --theme-panel: #ffffff;
+  --theme-border: #cccccc;
+  --theme-warning: #ff0000;
+  --theme-text: #1a1a1a;
+  --theme-heading: #000000;
+
+  --theme-active-bg: #f5f5f5;
+  --theme-header: #f0f0f0;
+  --theme-bubble-ai: #ffeeff;
+  --theme-text-ai: #990099;
+  --theme-bubble-user: #e6f9ff;
+  --theme-warning-bg: #ffe6e6;
+  --theme-iframe-bg: #ffffff;
+  --theme-scanline-light: rgba(255, 255, 255, 0);
+  --theme-scanline-dark: rgba(200, 200, 200, 0.4);
+}
+
+[data-theme="dark"] {
+  --background: #050505;
+  --foreground: #e0e0e0;
+
+  --theme-neon: #39ff14;
+  --theme-cyan: #00f0ff;
+  --theme-magenta: #ff00ff;
+  --theme-dark: #090909;
+  --theme-panel: #111111;
+  --theme-border: #1f1f1f;
+  --theme-warning: #ff3333;
+  --theme-text: #e0e0e0;
+  --theme-heading: #ffffff;
+
+  --theme-active-bg: #050505;
+  --theme-header: #050505;
+  --theme-bubble-ai: #1a001a;
+  --theme-text-ai: #ffb3ff;
+  --theme-bubble-user: #001a22;
+  --theme-warning-bg: #110000;
+  --theme-iframe-bg: #000000;
+  --theme-scanline-light: rgba(18, 16, 16, 0);
+  --theme-scanline-dark: rgba(0, 0, 0, 0.4);
 }
 
 body {
@@ -24,7 +77,7 @@ body {
   color: var(--foreground);
   /* Subtle CRT Scanline effect on the body behind panels */
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(200, 200, 200, 0.4) 50%),
+    linear-gradient(var(--theme-scanline-light) 50%, var(--theme-scanline-dark) 50%),
     linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
   background-size: 100% 2px, 3px 100%;
 }
@@ -32,19 +85,19 @@ body {
 /* Custom utilities for neon glows */
 @layer utilities {
   .shadow-neon-green {
-    box-shadow: 0 0 10px rgba(0, 170, 0, 0.2), 0 0 20px rgba(0, 170, 0, 0.1);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-arcade-neon) 20%, transparent), 0 0 20px color-mix(in srgb, var(--color-arcade-neon) 10%, transparent);
   }
 
   .shadow-neon-cyan {
-    box-shadow: 0 0 10px rgba(0, 119, 170, 0.2), 0 0 20px rgba(0, 119, 170, 0.1);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-arcade-cyan) 20%, transparent), 0 0 20px color-mix(in srgb, var(--color-arcade-cyan) 10%, transparent);
   }
 
   .shadow-neon-magenta {
-    box-shadow: 0 0 10px rgba(170, 0, 170, 0.2), 0 0 20px rgba(170, 0, 170, 0.1);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-arcade-magenta) 20%, transparent), 0 0 20px color-mix(in srgb, var(--color-arcade-magenta) 10%, transparent);
   }
 
   .border-crt {
     border: 1px solid var(--color-arcade-border);
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 0 5px color-mix(in srgb, black 10%, transparent);
   }
 }

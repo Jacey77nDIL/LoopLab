@@ -11,13 +11,13 @@ export default function Home() {
     if (token) {
       router.push("/ide");
     } else {
-      router.push("/login");
+      router.push("/signup");
     }
   }, [router]);
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-950 text-white">
-      <div className="animate-pulse">Loading AI Prompting Challenge...</div>
+    <div className="flex items-center justify-center h-screen bg-[var(--background)] text-[var(--color-arcade-neon)] tracking-widest font-mono text-xl uppercase">
+      <div className="animate-pulse">Loading Workspace...</div>
     </div>
   );
 }

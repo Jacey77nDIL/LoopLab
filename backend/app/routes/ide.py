@@ -10,7 +10,7 @@ from app.ai_service import call_kimi_api
 
 router = APIRouter()
 
-PROMPT_LIMIT = 15
+PROMPT_LIMIT = 12
 
 def get_or_create_project(db: Session, user: User) -> Project:
     project = db.query(Project).filter(Project.user_id == user.id).first()
@@ -29,6 +29,7 @@ def get_or_create_project(db: Session, user: User) -> Project:
 def get_project(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     project = get_or_create_project(db, current_user)
     return {
+        "id": project.id,
         "game_file_content": project.game_file_content,
         "prompt_count": project.prompt_count,
         "prompt_limit": PROMPT_LIMIT
@@ -58,6 +59,8 @@ async def process_prompt(req: PromptRequest, current_user: User = Depends(get_cu
     # 2. Call Kimi AI
     try:
         response_json = await call_kimi_api(trimmed_prompt, project.game_file_content, summaries)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")
         

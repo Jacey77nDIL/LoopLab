@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, VT323 } from "next/font/google";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -14,7 +15,7 @@ const vt323 = VT323({
 });
 
 export const metadata: Metadata = {
-  title: "AI Prompting Challenge",
+  title: "LoopLabs by TIC",
   description: "Retro-futuristic Arcade Control Room",
 };
 
@@ -27,8 +28,13 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${spaceGrotesk.variable} ${vt323.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

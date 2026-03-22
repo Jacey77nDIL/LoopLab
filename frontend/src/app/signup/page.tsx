@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signupUser, loginUser } from "@/lib/api";
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Signup() {
     const [email, setEmail] = useState("");
@@ -15,6 +16,13 @@ export default function Signup() {
     useEffect(() => {
         router.prefetch("/ide");
     }, [router]);
+
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => setError(""), 10000);
+            return () => clearTimeout(timer);
+        }
+    }, [error]);
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,8 +40,13 @@ export default function Signup() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen px-4 bg-[var(--background)]">
-            <div className="w-full max-w-md bg-[var(--color-arcade-panel)] border-crt rounded-none shadow-neon-magenta p-8 relative overflow-hidden">
+        <div className="flex items-center justify-center min-h-screen px-4 bg-[var(--background)] relative transition-colors">
+
+            <div className="absolute top-6 right-6 z-20">
+                <ThemeToggle />
+            </div>
+
+            <div className="w-full max-w-md bg-[var(--color-arcade-panel)] border-crt rounded-none shadow-neon-magenta p-8 relative overflow-hidden transition-colors">
                 <div className="absolute top-0 left-0 w-full h-1 bg-[var(--color-arcade-magenta)] opacity-70"></div>
 
                 <div className="text-center space-y-2 mb-8">
@@ -46,7 +59,7 @@ export default function Signup() {
                 </div>
 
                 {error && (
-                    <div className="bg-[#ffe6e6] border-l-4 border-l-[var(--color-arcade-warning)] text-[var(--color-arcade-warning)] px-4 py-3 font-mono text-sm mb-6 animate-pulse">
+                    <div className="bg-[var(--color-arcade-warning-bg)] border-l-4 border-l-[var(--color-arcade-warning)] text-[var(--color-arcade-warning)] px-4 py-3 font-mono text-sm mb-6 animate-pulse transition-colors">
                         &gt; {error}
                     </div>
                 )}
@@ -82,7 +95,7 @@ export default function Signup() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-transparent border-2 border-[var(--color-arcade-magenta)] text-[var(--color-arcade-magenta)] font-mono tracking-widest uppercase hover:bg-[var(--color-arcade-magenta)] hover:text-white py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 shadow-neon-magenta"
+                        className="w-full bg-transparent border-2 border-[var(--color-arcade-magenta)] text-[var(--color-arcade-magenta)] font-mono tracking-widest uppercase hover:bg-[var(--color-arcade-magenta)] hover:text-[var(--color-arcade-heading)] py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 shadow-neon-magenta"
                     >
                         {loading ? "[ ESTABLISHING... ]" : "[ CREATE LINK ]"}
                     </button>

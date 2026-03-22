@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/lib/api";
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -15,6 +16,13 @@ export default function Login() {
     useEffect(() => {
         router.prefetch("/ide");
     }, [router]);
+
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => setError(""), 10000);
+            return () => clearTimeout(timer);
+        }
+    }, [error]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,8 +39,13 @@ export default function Login() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen px-4 bg-[var(--background)]">
-            <div className="w-full max-w-md bg-[var(--color-arcade-panel)] border-crt rounded-none shadow-neon-cyan p-8 relative overflow-hidden">
+        <div className="flex items-center justify-center min-h-screen px-4 bg-[var(--background)] relative transition-colors">
+
+            <div className="absolute top-6 right-6 z-20">
+                <ThemeToggle />
+            </div>
+
+            <div className="w-full max-w-md bg-[var(--color-arcade-panel)] border-crt rounded-none shadow-neon-cyan p-8 relative overflow-hidden transition-colors">
                 {/* Decorative retro elements */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-[var(--color-arcade-cyan)] opacity-70"></div>
 
@@ -46,7 +59,7 @@ export default function Login() {
                 </div>
 
                 {error && (
-                    <div className="bg-[#ffe6e6] border-l-4 border-l-[var(--color-arcade-warning)] text-[var(--color-arcade-warning)] px-4 py-3 font-mono text-sm mb-6 animate-pulse">
+                    <div className="bg-[var(--color-arcade-warning-bg)] border-l-4 border-l-[var(--color-arcade-warning)] text-[var(--color-arcade-warning)] px-4 py-3 font-mono text-sm mb-6 animate-pulse transition-colors">
                         &gt; {error}
                     </div>
                 )}
@@ -81,7 +94,7 @@ export default function Login() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-transparent border-2 border-[var(--color-arcade-cyan)] text-[var(--color-arcade-cyan)] font-mono tracking-widest uppercase hover:bg-[var(--color-arcade-cyan)] hover:text-white py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 shadow-neon-cyan"
+                        className="w-full bg-transparent border-2 border-[var(--color-arcade-cyan)] text-[var(--color-arcade-cyan)] font-mono tracking-widest uppercase hover:bg-[var(--color-arcade-cyan)] hover:text-[var(--color-arcade-heading)] py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 shadow-neon-cyan"
                     >
                         {loading ? "[ AUTHENTICATING... ]" : "[ INITIATE LINK ]"}
                     </button>
