@@ -6,7 +6,7 @@ from app.routes import auth, ide
 # Create database tables.
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="AI Prompting Challenge API")
+app = FastAPI(title="AI Prompting Challenge API", debug=True)
 
 # Configure CORS
 app.add_middleware(
