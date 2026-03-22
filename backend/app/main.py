@@ -11,7 +11,8 @@ app = FastAPI(title="AI Prompting Challenge API")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # For MVP, allow all origins
+    allow_origins=["https://loop-lab-green.vercel.app",
+        "http://localhost:3000"], # For MVP, allow all origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
