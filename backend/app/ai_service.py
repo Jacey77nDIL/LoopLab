@@ -181,7 +181,7 @@ Strictly follow the JSON schema requested in the system prompt.
             {"role": "user", "content": prompt}
         ],
         "temperature": 0.3,
-        "max_tokens": 800,
+        "max_tokens": 5000,
         "stream": True
     }
 
