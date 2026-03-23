@@ -9,6 +9,20 @@ logger = logging.getLogger(__name__)
 
 KIMI_API_URL = "https://api.moonshot.ai/v1/chat/completions"
 
+ROUTER_SYSTEM_PROMPT = """You are an intelligent code routing agent.
+Your job is to read the user's game modification request and identify which existing codebase sections need to be edited to fulfill it.
+
+RULES:
+1. You MUST return strict JSON only. No markdown, no prose.
+2. Choose the MINIMAL number of relevant sections (max 3).
+3. If the user wants to add a completely new section, return the sections that might need modifications to hook it in (e.g., UPDATE_LOOP or RENDER).
+
+RESPONSE FORMAT:
+{
+  "sections": ["PLAYER", "PHYSICS_COLLISIONS"]
+}
+"""
+
 SYSTEM_PROMPT = """You are an AI game developer agent for a web-based single-file game challenge.
 You are tasked with modifying a provided `game.js` built using sections.
 
@@ -97,15 +111,61 @@ def validate_ai_response(parsed_json: Dict[str, Any]) -> None:
     if not isinstance(parsed_json.get("new_sections"), list):
         raise ValueError("AI service error: 'new_sections' field must be a list.")
 
-async def call_kimi_api(user_request: str, full_file_content: str, summaries: str) -> Dict[str, Any]:
+async def route_prompt_to_sections(user_request: str, summaries: str) -> list[str]:
+    prompt = f"USER REQUEST: {user_request}\n\nAVAILABLE SECTIONS (with summaries):\n{summaries}"
+    headers = {
+        "Authorization": f"Bearer {settings.KIMI_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "kimi-k2-turbo-preview",
+        "messages": [
+            {"role": "system", "content": ROUTER_SYSTEM_PROMPT},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.1,
+        "max_tokens": 150
+    }
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(KIMI_API_URL, headers=headers, json=payload, timeout=30.0)
+            response.raise_for_status()
+            raw_content = response.json()["choices"][0]["message"]["content"]
+            parsed = safe_json_parse(raw_content)
+            sections = parsed.get("sections", [])
+            if isinstance(sections, list):
+                return sections
+            return []
+    except Exception as e:
+        logger.error(f"Router call failed: {e}")
+        return []
+
+async def call_kimi_api(user_request: str, full_file_content: str, summaries: str, parsed_sections: list) -> Dict[str, Any]:
+    # STAGE 1 - ROUTER
+    target_sections = await route_prompt_to_sections(user_request, summaries)
+    
+    # Validate targeted sections against existing sections
+    valid_section_names = {s["name"] for s in parsed_sections} if parsed_sections else set()
+    valid_targets = [name for name in target_sections if name in valid_section_names]
+    
+    logger.info(f"AI Router selected regions: {valid_targets}")
+    
+    # STAGE 2 - GENERATOR Setup
+    if valid_targets and parsed_sections:
+        extracted_content = "\n\n".join([s["content"] for s in parsed_sections if s["name"] in valid_targets])
+        context_string = f"TARGETED SECTIONS CODE:\n{extracted_content}"
+    else:
+        # Fallback to full file if router fails or returns gibberish
+        context_string = f"CURRENT GAME FILE CONTENT:\n{full_file_content}"
+        
     prompt = f"""
 USER REQUEST: {user_request}
 
-CURRENT GAME FILE SECTIONS SUMMARY:
+GAME STRUCTURAL SUMMARIES:
 {summaries}
 
-CURRENT GAME FILE CONTENT:
-{full_file_content}
+{context_string}
 
 Strictly follow the JSON schema requested in the system prompt.
 """
@@ -120,17 +180,31 @@ Strictly follow the JSON schema requested in the system prompt.
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": prompt}
         ],
-        "temperature": 0.3
+        "temperature": 0.3,
+        "max_tokens": 800,
+        "stream": True
     }
 
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.post(KIMI_API_URL, headers=headers, json=payload, timeout=60.0)
-            response.raise_for_status()
-            raw_content = response.json()["choices"][0]["message"]["content"]
+            raw_content = ""
+            async with client.stream("POST", KIMI_API_URL, headers=headers, json=payload, timeout=120.0) as response:
+                response.raise_for_status()
+                
+                async for line in response.aiter_lines():
+                    if line.startswith("data: "):
+                        data_str = line[6:]
+                        if data_str.strip() == "[DONE]":
+                            break
+                        try:
+                            chunk_data = json.loads(data_str)
+                            delta = chunk_data["choices"][0]["delta"].get("content", "")
+                            raw_content += delta
+                        except Exception:
+                            continue
             
             # Log shortened raw string indicating AI succeeded
-            logger.info(f"Received raw AI response spanning {len(raw_content)} chars.")
+            logger.info(f"Received fully buffered AI stream spanning {len(raw_content)} chars.")
             
             parsed_json = safe_json_parse(raw_content)
             validate_ai_response(parsed_json)
@@ -138,5 +212,5 @@ Strictly follow the JSON schema requested in the system prompt.
             return parsed_json
             
         except httpx.HTTPError as h_err:
-            logger.error(f"HTTP error communicating with Moodshot: {h_err}")
+            logger.error(f"HTTP error communicating with Moonshot: {h_err}")
             raise ValueError("Upstream AI Provider failed to respond.")

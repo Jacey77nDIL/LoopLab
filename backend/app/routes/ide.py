@@ -58,7 +58,7 @@ async def process_prompt(req: PromptRequest, current_user: User = Depends(get_cu
     
     # 2. Call Kimi AI
     try:
-        response_json = await call_kimi_api(trimmed_prompt, project.game_file_content, summaries)
+        response_json = await call_kimi_api(trimmed_prompt, project.game_file_content, summaries, sections)
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:

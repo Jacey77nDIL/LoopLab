@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from app.database import engine, Base, get_db
 from app.models import User, Project
-from app.routes import auth, ide
+from app.routes import auth, ide, public
 
 # Create database tables.
 Base.metadata.create_all(bind=engine)
@@ -24,6 +24,8 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 
 app.include_router(ide.router, prefix="/ide", tags=["ide"])
+
+app.include_router(public.router, prefix="/public", tags=["public"])
 
 @app.get("/")
 def read_root():

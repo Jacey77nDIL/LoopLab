@@ -1,4 +1,6 @@
-const API_BASE_URL = "https://looplab-l55d.onrender.com";
+const API_BASE_URL = process.env.NODE_ENV === "development"
+  ? "http://localhost:8000"
+  : "https://looplab-l55d.onrender.com";
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem("auth_token");
@@ -60,5 +62,17 @@ export function logoutUser() {
 export async function fetchPlatformStats() {
   const response = await fetch(`${API_BASE_URL}/stats`);
   if (!response.ok) throw new Error("Failed to fetch telemetry");
+  return await response.json();
+}
+
+export async function fetchPublicGames() {
+  const response = await fetch(`${API_BASE_URL}/public/games`);
+  if (!response.ok) throw new Error("Failed to fetch public archive");
+  return await response.json();
+}
+
+export async function fetchPublicGame(username: string) {
+  const response = await fetch(`${API_BASE_URL}/public/games/${username}`);
+  if (!response.ok) throw new Error("Failed to retrieve simulation data");
   return await response.json();
 }
