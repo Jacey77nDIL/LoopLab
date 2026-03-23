@@ -15,7 +15,7 @@ const vt323 = VT323({
 });
 
 export const metadata: Metadata = {
-  title: "LoopLabs by TIC",
+  title: "LoopLabs",
   description: "Retro-futuristic Arcade Control Room",
 };
 
