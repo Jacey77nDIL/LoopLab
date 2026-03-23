@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Users, Code, Cpu } from "lucide-react";
+import { fetchPlatformStats } from "@/lib/api";
 
 // Animated Counter Hook/Component
 function AnimatedCounter({ value, duration = 2000 }: { value: number; duration?: number }) {
@@ -49,10 +50,7 @@ export default function StatsPage() {
 
     const fetchStats = async () => {
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-            const response = await fetch(`${apiUrl}/stats`);
-            if (!response.ok) throw new Error("Failed to fetch telemetry");
-            const data = await response.json();
+            const data = await fetchPlatformStats();
             setStats(data);
             setError("");
         } catch (err: any) {

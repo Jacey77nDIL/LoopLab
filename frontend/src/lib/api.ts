@@ -56,3 +56,9 @@ export async function sendPrompt(prompt: string) {
 export function logoutUser() {
   localStorage.removeItem("auth_token");
 }
+
+export async function fetchPlatformStats() {
+  const response = await fetch(`${API_BASE_URL}/stats`);
+  if (!response.ok) throw new Error("Failed to fetch telemetry");
+  return await response.json();
+}
